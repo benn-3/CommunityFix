@@ -1,4 +1,6 @@
 import IssueCard from '../components/IssueCard'
+import { useEffect, useState } from 'react'
+import issueService from '../services/issueService'
 
 const placeholder = [
   {
@@ -36,7 +38,27 @@ const placeholder = [
 ]
 
 export default function AllIssues() {
-  const issues = placeholder
+  const [issues, setIssues] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    let mounted = true
+    setLoading(true)
+    issueService.list()
+      .then(data => {
+        if (!mounted) return
+        setIssues(data || [])
+      })
+      .catch(err => {
+        console.error(err)
+        if (!mounted) return
+        setError(err)
+      })
+      .finally(() => mounted && setLoading(false))
+
+    return () => { mounted = false }
+  }, [])
 
   return (
     <div className="w-full">
@@ -45,8 +67,11 @@ export default function AllIssues() {
         <div className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{issues.length} results</div>
       </div>
 
+      {loading && <div className="text-sm text-slate-500">Loading issues…</div>}
+      {error && <div className="text-sm text-red-600">Failed to load issues</div>}
+
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-        {issues.map(issue => (
+        {(issues.length ? issues : placeholder).map(issue => (
           <IssueCard key={issue._id} issue={issue} />
         ))}
       </div>

@@ -3,6 +3,8 @@ import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import issueService from '../services/issueService'
+import { useNavigate } from 'react-router-dom'
 
 export default function CreateIssue() {
   const [title, setTitle] = useState('')
@@ -28,15 +30,20 @@ export default function CreateIssue() {
     setErrors({})
     setSaving(true)
     try {
-      await new Promise(r => setTimeout(r, 700))
-      alert('Issue created (demo)')
+      const payload = { title, category, description }
+      await issueService.create(payload)
+      alert('Issue created')
       setTitle(''); setDescription('')
+      navigate('/issues')
     } catch (err) {
-      alert('Failed to create issue')
+      console.error(err)
+      alert(err?.response?.data?.message || 'Failed to create issue')
     } finally {
       setSaving(false)
     }
   }
+
+  const navigate = useNavigate()
 
   return (
     <div className="container mt-8">

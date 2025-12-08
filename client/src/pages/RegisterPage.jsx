@@ -3,6 +3,7 @@ import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import { Link, useNavigate } from 'react-router-dom'
+import authService from '../services/authService'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -14,7 +15,8 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 700))
+      const res = await authService.register({ email, password })
+      // registration success, navigate to login
       navigate('/login')
     } catch {
       alert('Register failed')

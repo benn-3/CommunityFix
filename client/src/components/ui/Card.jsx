@@ -1,3 +1,12 @@
-export default function Card({ children }) {
-  return <div className="cf-card">{children}</div>
+export default function Card({ children, className = '', ...props }) {
+  return (
+    <div
+      role="region"
+      aria-label="card"
+      className={`cf-card ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  )
 }

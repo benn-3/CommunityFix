@@ -3,21 +3,31 @@ import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import { Link, useNavigate } from 'react-router-dom'
+import authService from '../services/authService'
+import { useAuth } from '../hooks/useAuth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 700))
-      navigate('/dashboard')
+      const res = await authService.login({ email, password })
+      // expect { token }
+      if (res?.token) {
+        login(res.token)
+        navigate('/')
+      } else {
+        throw new Error('Invalid response from server')
+      }
     } catch(err) {
-      alert('Login failed')
+      console.error(err)
+      alert(err?.response?.data?.message || 'Login failed')
     } finally { setLoading(false) }
   }
 
