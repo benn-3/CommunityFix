@@ -3,7 +3,7 @@ export default function Card({ children, className = '', ...props }) {
     <div
       role="region"
       aria-label="card"
-      className={`cf-card ${className}`}
+      className={`bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
       {...props}
     >
       {children}

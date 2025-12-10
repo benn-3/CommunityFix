@@ -9,6 +9,6 @@ export default {
   },
   list: async () => {
     const res = await api.get('/issues')
-    return res.data
+    return res.data.issues
   }
 }

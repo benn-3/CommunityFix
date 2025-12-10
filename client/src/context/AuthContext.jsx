@@ -9,19 +9,24 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = getToken()
-    if (token) {
-      // optionally fetch user profile
+    const storedUser = localStorage.getItem('user')
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser))
+    } else if (token) {
+      // Fallback if we have token but no user data (shouldn't happen with new logic, but good safety)
       setUser({ token })
     }
   }, [])
 
-  const login = (token) => {
+  const login = (token, userData) => {
     saveToken(token)
-    setUser({ token })
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
   }
 
   const logout = () => {
     clearToken()
+    localStorage.removeItem('user')
     setUser(null)
   }
 
