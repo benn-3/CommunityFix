@@ -7,6 +7,40 @@ export default function Sidebar({ className = '' }) {
 
   const isActive = (path) => location.pathname === path
 
+  // Define links based on user role
+  const getLinks = () => {
+    if (!user) return []
+
+    const commonLinks = [
+      { to: '/issues', label: '📋 All issues' }
+    ]
+
+    switch (user.role) {
+      case 'admin':
+        return [
+          { to: '/admin', label: '⚙️ Admin Dashboard' },
+          ...commonLinks,
+          { to: '/report', label: '✏️ Report an issue' }
+        ]
+
+      case 'worker':
+        return [
+          { to: '/worker', label: '🔧 My Tasks' },
+          ...commonLinks
+        ]
+
+      case 'citizen':
+      default:
+        return [
+          { to: '/dashboard', label: '📊 Dashboard' },
+          ...commonLinks,
+          { to: '/report', label: '✏️ Report an issue' }
+        ]
+    }
+  }
+
+  const links = getLinks()
+
   return (
     <aside className={`w-full ${className}`}>
       <div className="space-y-6 sticky top-24">
@@ -30,18 +64,13 @@ export default function Sidebar({ className = '' }) {
         </div>
 
         <nav className="space-y-1">
-          {[
-            { to: '/dashboard', label: '📊 Dashboard' },
-            { to: '/issues', label: '📋 All issues' },
-            { to: '/report', label: '✏️ Report an issue' },
-            { to: '/admin', label: '⚙️ Admin' }
-          ].map(link => (
+          {links.map(link => (
             <Link
               key={link.to}
               to={link.to}
               className={`flex items-center px-4 py-3 rounded-lg font-medium transition-all duration-200 ${isActive(link.to)
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
             >
               {link.label}

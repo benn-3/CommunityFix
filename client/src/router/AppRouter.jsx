@@ -3,6 +3,7 @@ import { PublicLayout, DashboardLayout } from '../components/layout/Layouts'
 
 import HomePage from '../pages/HomePage'
 import AllIssues from '../pages/issues/AllIssues'
+import IssueDetail from '../pages/issues/IssueDetail'
 import CreateIssue from '../pages/issues/CreateIssue'
 import Dashboard from '../pages/Dashboard'
 import LoginPage from '../pages/auth/LoginPage'
@@ -31,7 +32,8 @@ export default function AppRouter() {
           <Route path="/worker" element={<ProtectedRoute allowedRoles={['worker']}><WorkerDashboard /></ProtectedRoute>} />
 
           <Route path="/issues" element={<AllIssues />} />
-          <Route path="/report" element={<ProtectedRoute allowedRoles={['citizen']}><CreateIssue /></ProtectedRoute>} />
+          <Route path="/issues/:id" element={<IssueDetail />} />
+          <Route path="/report" element={<ProtectedRoute allowedRoles={['citizen', 'worker', 'admin']}><CreateIssue /></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

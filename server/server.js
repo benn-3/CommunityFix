@@ -13,6 +13,9 @@ app.use(express.json())
 // Routes
 app.use('/auth', require('./routes/auth'))
 app.use('/issues', require('./routes/issues'))
+app.use('/admin', require('./routes/admin'))
+app.use('/categories', require('./routes/categories'))
+app.use('/upload', require('./routes/upload'))
 
 // simple root route
 app.get('/', (req, res) => res.send('API Working...'))

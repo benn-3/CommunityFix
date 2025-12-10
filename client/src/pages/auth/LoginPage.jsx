@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('citizen')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -14,7 +15,10 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await authService.login({ email, password })
+      console.log('Attempting login with:', { email, role })
+      const res = await authService.login({ email, password, role })
+      console.log('Login response:', res)
+
       if (res?.token && res?.user) {
         login(res.token, res.user)
         alert(`Logged in successfully as ${res.user.role}!`)
@@ -33,9 +37,13 @@ export default function LoginPage() {
         throw new Error('Invalid response from server')
       }
     } catch (err) {
-      console.error(err)
-      alert(err?.response?.data?.message || 'Login failed')
-    } finally { setLoading(false) }
+      console.error('Login error:', err)
+      console.error('Error response:', err?.response?.data)
+      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed'
+      alert(errorMessage)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -96,6 +104,30 @@ export default function LoginPage() {
                 <span>Remember me</span>
               </label>
               <Link to="/forgot" className="text-blue-600 font-bold hover:underline">Forgot Password?</Link>
+            </div>
+
+            {/* Role Selection Dropdown */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-400 font-semibold text-lg">
+                  {role === 'admin' ? '🛡️' : role === 'worker' ? '👷' : '👤'}
+                </span>
+              </div>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-gray-700 font-medium appearance-none cursor-pointer hover:bg-gray-100"
+              >
+                <option value="citizen">Citizen</option>
+                <option value="worker">Worker</option>
+                <option value="admin">Admin</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 group-hover:text-blue-600 transition-colors">
+                <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </div>
+              <label className="absolute -top-2 left-2 px-1 text-xs font-semibold text-blue-600 bg-white">Select Role</label>
             </div>
 
             <div className="flex justify-center mt-2">

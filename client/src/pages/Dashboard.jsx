@@ -12,11 +12,25 @@ export default function Dashboard() {
 
   useEffect(() => {
     let mounted = true
+    console.log('[Dashboard] Loading issues...')
     setLoading(true)
     issueService.list()
-      .then(data => { if (!mounted) return; setIssues(data || []) })
-      .catch(err => { console.error(err); if (!mounted) return; setError(err) })
-      .finally(() => mounted && setLoading(false))
+      .then(data => {
+        if (!mounted) return
+        console.log('[Dashboard] Issues loaded:', data)
+        setIssues(data || [])
+      })
+      .catch(err => {
+        console.error('[Dashboard] Error loading issues:', err)
+        if (!mounted) return
+        setError(err)
+      })
+      .finally(() => {
+        if (mounted) {
+          setLoading(false)
+          console.log('[Dashboard] Loading complete')
+        }
+      })
 
     return () => { mounted = false }
   }, [])
@@ -33,19 +47,19 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 mb-8">
-        <Card className="text-center">
+        <Card className="text-center p-6">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Open issues</p>
           <div className="text-3xl font-bold text-slate-900 mt-3">{openCount}</div>
           <p className="text-sm text-slate-500 mt-2">Needs attention</p>
         </Card>
 
-        <Card className="text-center">
+        <Card className="text-center p-6">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">In progress</p>
           <div className="text-3xl font-bold text-amber-600 mt-3">{inProgressCount}</div>
           <p className="text-sm text-slate-500 mt-2">Being handled</p>
         </Card>
 
-        <Card className="text-center">
+        <Card className="text-center p-6">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Resolved</p>
           <div className="text-3xl font-bold text-green-600 mt-3">{closedCount}</div>
           <p className="text-sm text-slate-500 mt-2">Completed issues</p>
@@ -58,16 +72,23 @@ export default function Dashboard() {
       </div>
 
       {loading && <div className="text-slate-500">Loading recent issues…</div>}
-      {error && <div className="text-red-600">Failed to load issues</div>}
+      {error && (
+        <div className="text-red-600">
+          Failed to load issues
+          <div className="text-xs mt-1">{error.message}</div>
+        </div>
+      )}
 
-      <div className="space-y-4">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
         {issues.slice(0, 6).map(issue => (
           <IssueCard key={issue._id} issue={issue} />
         ))}
         {!loading && issues.length === 0 && (
-          <Card>
-            <p className="text-slate-600">No issues yet — encourage your community to report problems.</p>
-          </Card>
+          <div className="col-span-full">
+            <Card className="p-6">
+              <p className="text-slate-600">No issues yet — encourage your community to report problems.</p>
+            </Card>
+          </div>
         )}
       </div>
     </div>

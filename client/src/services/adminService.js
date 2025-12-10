@@ -1,6 +1,19 @@
 import api from './api'
+import { authHeader } from './auth'
 
 export default {
-  // placeholder for admin endpoints
-  approveIssue: async (id) => api.post(`/admin/issues/${id}/approve`)
+  getAnalytics: async () => {
+    const headers = authHeader()
+    const res = await api.get('/admin/analytics', { headers })
+    return res.data
+  },
+  getWorkers: async () => {
+    const headers = authHeader()
+    const res = await api.get('/admin/workers', { headers })
+    return res.data
+  },
+  deleteWorker: async (id) => {
+    const headers = authHeader()
+    await api.delete(`/admin/workers/${id}`, { headers })
+  }
 }
