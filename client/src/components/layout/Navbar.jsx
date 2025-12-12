@@ -20,7 +20,16 @@ export default function Navbar() {
       <div className="container flex items-center justify-between h-16 px-4 mx-auto max-w-7xl">
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">CF</div>
+            <div
+              className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-sm"
+              style={{
+                backgroundImage: "url('/image.png')",
+                backgroundSize: '100%',
+                backgroundPosition: '100% 100%',
+                backgroundRepeat: 'no-repeat' 
+              }}
+              aria-hidden="true"
+            />
             <span className="text-xl font-bold text-slate-900 tracking-tight">Community<span className="text-blue-600">Fix</span></span>
           </Link>
         </div>
