@@ -191,8 +191,8 @@ export default function AdminDashboard() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -230,8 +230,8 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${issue.status === 'pending' ? 'bg-orange-100 text-orange-800' :
-                            issue.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                              'bg-blue-100 text-blue-800'
+                          issue.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                            'bg-blue-100 text-blue-800'
                           }`}>
                           {issue.status}
                         </span>
@@ -305,11 +305,20 @@ export default function AdminDashboard() {
                                   Cancel
                                 </button>
                                 <button
-                                  onClick={() => handleIssueAction(issue._id, 'assign', { workerId: assignWorkerId })}
+                                  onClick={() => {
+                                    console.log('[AdminDashboard] Confirm clicked')
+                                    console.log('[AdminDashboard] assignWorkerId:', assignWorkerId)
+                                    console.log('[AdminDashboard] Calling handleIssueAction with:', {
+                                      issueId: issue._id,
+                                      action: 'assign',
+                                      payload: { workerId: assignWorkerId }
+                                    })
+                                    handleIssueAction(issue._id, 'assign', { workerId: assignWorkerId })
+                                  }}
                                   disabled={!assignWorkerId || processing === issue._id}
                                   className={`text-xs px-3 py-1 rounded ${!assignWorkerId || processing === issue._id
-                                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                                 >
                                   {processing === issue._id ? 'Assigning...' : 'Confirm'}
