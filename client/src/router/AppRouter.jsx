@@ -31,8 +31,8 @@ export default function AppRouter() {
 
           <Route path="/worker" element={<ProtectedRoute allowedRoles={['worker']}><WorkerDashboard /></ProtectedRoute>} />
 
-          <Route path="/issues" element={<AllIssues />} />
-          <Route path="/issues/:id" element={<IssueDetail />} />
+          <Route path="/issues" element={<ProtectedRoute allowedRoles={['citizen', 'admin', 'worker']}><AllIssues /></ProtectedRoute>} />
+          <Route path="/issues/:id" element={<ProtectedRoute allowedRoles={['citizen', 'admin', 'worker']}><IssueDetail /></ProtectedRoute>} />
           <Route path="/report" element={<ProtectedRoute allowedRoles={['citizen', 'worker', 'admin']}><CreateIssue /></ProtectedRoute>} />
         </Route>
 

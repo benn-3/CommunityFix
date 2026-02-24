@@ -1,9 +1,9 @@
-export default function Card({ children, className = '', ...props }) {
+export default function Card({ children, className = '', hover = true, ...props }) {
   return (
     <div
       role="region"
       aria-label="card"
-      className={`bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
+      className={`bg-white rounded-2xl border border-slate-200/80 shadow-card ${hover ? 'hover:shadow-card-hover hover:-translate-y-0.5' : ''} transition-all duration-300 ${className}`}
       {...props}
     >
       {children}

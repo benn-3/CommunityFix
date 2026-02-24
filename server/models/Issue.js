@@ -24,4 +24,10 @@ const IssueSchema = new mongoose.Schema({
   }]
 }, { timestamps: true })
 
+// Indexes for query performance
+IssueSchema.index({ status: 1, category: 1 })
+IssueSchema.index({ assignedTo: 1, status: 1 })
+IssueSchema.index({ createdAt: -1 })
+IssueSchema.index({ reporter: 1 })
+
 module.exports = mongoose.model('Issue', IssueSchema)

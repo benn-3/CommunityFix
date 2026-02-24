@@ -1,56 +1,74 @@
 import Card from './ui/Card'
 import { Link } from 'react-router-dom'
 
-function StatusChip({ status }) {
-  const map = {
-    pending: 'text-orange-700 bg-orange-100',
-    approved: 'text-blue-700 bg-blue-100',
-    assigned: 'text-indigo-700 bg-indigo-100',
-    in_progress: 'text-amber-700 bg-amber-100',
-    resolved: 'text-green-700 bg-green-100',
-    closed: 'text-slate-700 bg-slate-100'
+const statusConfig = {
+  pending: { label: 'Pending', bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
+  approved: { label: 'Approved', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-400' },
+  assigned: { label: 'Assigned', bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-400' },
+  in_progress: { label: 'In Progress', bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-400' },
+  resolved: { label: 'Resolved', bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-400' },
+  closed: { label: 'Closed', bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400' },
+}
+
+function StatusBadge({ status }) {
+  const config = statusConfig[status] || statusConfig.pending
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${config.bg} ${config.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+      {config.label}
+    </span>
+  )
+}
+
+function PriorityIndicator({ priority }) {
+  const colors = {
+    high: 'bg-red-500',
+    medium: 'bg-amber-400',
+    low: 'bg-emerald-400'
   }
-  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${map[status] ?? 'text-slate-600 bg-slate-100'}`}>{status.replace('_', ' ')}</span>
+  return <span className={`w-1 h-8 rounded-full ${colors[priority] || colors.medium}`} />
 }
 
 export default function IssueCard({ issue }) {
   return (
-    <Link to={`/issues/${issue._id}`}>
-      <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 p-6 cursor-pointer">
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <div className="flex items-start gap-3 flex-1">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+    <Link to={`/issues/${issue._id}`} className="group">
+      <Card className="flex h-full p-0 overflow-hidden">
+        <PriorityIndicator priority={issue.priority} />
+        <div className="flex flex-col flex-1 p-5 gap-3">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-navy-700 transition-colors truncate">
+                {issue.title}
+              </h3>
+              <p className="text-xs font-medium text-teal-600 mt-0.5 uppercase tracking-wide">{issue.category}</p>
             </div>
-            <div className="flex-1">
-              <h3 className="text-base font-bold text-slate-900 leading-snug">{issue.title}</h3>
-              <p className="text-xs font-medium text-blue-600 mt-1 uppercase tracking-wide">{issue.category}</p>
-            </div>
+            <StatusBadge status={issue.status} />
           </div>
 
-          <div className="flex-shrink-0">
-            <StatusChip status={issue.status} />
-          </div>
-        </div>
+          {/* Description */}
+          <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-2">{issue.description}</p>
 
-        <p className="text-sm text-slate-600 mt-3 leading-relaxed line-clamp-3">{issue.description}</p>
-
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-medium text-slate-500">Reported:</span>
-              <span className="text-xs text-slate-600 font-medium">{new Date(issue.createdAt).toLocaleDateString()}</span>
+          {/* Footer */}
+          <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100">
+            <div className="flex items-center gap-3 text-xs text-slate-400">
+              <span>{new Date(issue.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              {issue.upvotes && issue.upvotes.length > 0 && (
+                <span className="flex items-center gap-1 text-navy-600 font-semibold">
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" /></svg>
+                  {issue.upvotes.length}
+                </span>
+              )}
+              {issue.comments && issue.comments.length > 0 && (
+                <span className="flex items-center gap-1">
+                  💬 {issue.comments.length}
+                </span>
+              )}
             </div>
-            {issue.upvotes && issue.upvotes.length > 0 && (
-              <div className="flex items-center gap-1 text-blue-600">
-                <span className="text-sm">👍</span>
-                <span className="text-xs font-bold">{issue.upvotes.length}</span>
-              </div>
-            )}
+            <span className="text-xs font-semibold text-navy-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              View →
+            </span>
           </div>
-          <span className="px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200">View Details →</span>
         </div>
       </Card>
     </Link>

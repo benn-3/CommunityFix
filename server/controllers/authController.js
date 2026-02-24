@@ -1,91 +1,74 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const asyncHandler = require('../utils/asyncHandler')
+const ApiError = require('../utils/ApiError')
+const { config } = require('../config/env')
 
-exports.register = async (req, res) => {
+exports.register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body
-  if (!email || !password) return res.status(400).json({ message: 'Missing email or password' })
-  try {
-    const existing = await User.findOne({ email })
-    if (existing) return res.status(400).json({ message: 'Email already registered' })
+  const role = req.body.role || 'citizen'
 
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
-    const user = await User.create({
-      name,
-      email,
-      password: hash,
-      role: req.body.role || 'citizen'
-    })
-    // Generate token immediately after registration
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' })
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      token,
-      role: user.role,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: 'Server error' })
+  const existing = await User.findOne({ email })
+  if (existing) {
+    throw new ApiError(409, 'Email already registered')
   }
-}
 
-exports.login = async (req, res) => {
+  const salt = await bcrypt.genSalt(10)
+  const hash = await bcrypt.hash(password, salt)
+  const user = await User.create({ name, email, password: hash, role })
+
+  const token = jwt.sign(
+    { userId: user._id, role: user.role },
+    config.jwtSecret,
+    { expiresIn: config.jwtExpiresIn }
+  )
+
+  res.status(201).json({
+    message: 'User registered successfully',
+    token,
+    role: user.role,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  })
+})
+
+exports.login = asyncHandler(async (req, res) => {
   const { email, password, role } = req.body
 
-  console.log('Login attempt:', { email, role, hasPassword: !!password })
-
-  if (!email || !password) {
-    console.log('Missing credentials')
-    return res.status(400).json({ message: 'Missing email or password' })
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new ApiError(401, 'Invalid credentials')
   }
 
-  try {
-    const user = await User.findOne({ email })
-    if (!user) {
-      console.log('User not found:', email)
-      return res.status(400).json({ message: 'Invalid credentials' })
-    }
-
-    console.log('User found:', { email: user.email, role: user.role })
-
-    const match = await bcrypt.compare(password, user.password)
-    if (!match) {
-      console.log('Password mismatch')
-      return res.status(400).json({ message: 'Invalid credentials' })
-    }
-
-    // Validating Role - only if role is provided
-    if (role && user.role !== role) {
-      console.log('Role mismatch:', { requested: role, actual: user.role })
-      return res.status(403).json({
-        message: `Access denied. You are registered as ${user.role}, not ${role}.`
-      })
-    }
-
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' })
-
-    console.log('Login successful:', { email: user.email, role: user.role })
-
-    res.json({
-      token,
-      user: {
-        _id: user._id,
-        id: user._id, // Add id field for compatibility
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    })
-  } catch (err) {
-    console.error('Login error:', err)
-    res.status(500).json({ message: 'Server error' })
+  const match = await bcrypt.compare(password, user.password)
+  if (!match) {
+    throw new ApiError(401, 'Invalid credentials')
   }
-}
+
+  // Validate role if provided
+  if (role && user.role !== role) {
+    throw new ApiError(403, `Access denied. You are registered as ${user.role}, not ${role}.`)
+  }
+
+  const token = jwt.sign(
+    { userId: user._id, role: user.role },
+    config.jwtSecret,
+    { expiresIn: config.jwtExpiresIn }
+  )
+
+  res.json({
+    token,
+    user: {
+      _id: user._id,
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  })
+})

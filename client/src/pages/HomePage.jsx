@@ -1,103 +1,123 @@
-import Card from '../components/ui/Card'
 import { Link } from 'react-router-dom'
 
 export default function HomePage() {
   return (
     <div className="relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div className="absolute top-[-10%] right-[20%] w-[400px] h-[400px] bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-10%] left-[10%] w-[600px] h-[600px] bg-orange-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+      {/* Decorative Blobs */}
+      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-teal-100/40 rounded-full blur-3xl animate-blob" />
+        <div className="absolute -top-16 right-1/4 w-[400px] h-[400px] bg-navy-100/30 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-32 -left-16 w-[600px] h-[600px] bg-slate-100/50 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
-      <div className="container mx-auto px-4 py-16 lg:py-24">
-        <div className="grid gap-16 lg:gap-8 lg:grid-cols-2 items-center">
-
-          {/* Left Column: Text & CTA */}
-          <div className="space-y-8 animated-fade-in-up">
-            <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 font-bold text-sm rounded-full mb-2 tracking-wide border border-blue-100">
-              🚀 The #1 Hyper-local Issue Tracker
+      {/* Hero */}
+      <section className="container mx-auto px-4 py-20 lg:py-32 max-w-7xl">
+        <div className="grid gap-16 lg:gap-12 lg:grid-cols-2 items-center">
+          {/* Text */}
+          <div className="space-y-8 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 text-teal-700 font-semibold text-xs rounded-full border border-teal-200/60 tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+              Smart Civic Platform
             </div>
 
-            <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-navy-900 leading-[1.1]">
               Fix Your <br className="hidden lg:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Community</span> Today
+              <span className="text-brand-gradient">Community</span> Today
             </h1>
 
-            <p className="text-xl text-slate-600 max-w-lg leading-relaxed">
-              Report neighborhood issues fast. Potholes, streetlights, or sanitation – we help you track and resolve infrastructure problems in real-time.
+            <p className="text-lg text-slate-500 max-w-lg leading-relaxed">
+              Report civic issues — potholes, streetlights, sanitation — and track their resolution in real-time. Powered by transparency.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/report" className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:-translate-y-1">
-                ✏️ Report an Issue
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Link to="/register" className="inline-flex justify-center items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-navy-700 rounded-xl hover:bg-navy-800 hover:shadow-lg transition-all duration-300 shadow-sm">
+                Get Started Free
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </Link>
-              <Link to="/issues" className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-slate-700 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-all hover:border-slate-300 hover:-translate-y-1 shadow-sm">
-                📖 Browse Issues
+              <Link to="/login" className="inline-flex justify-center items-center gap-2 px-7 py-3.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 shadow-sm">
+                Sign In
               </Link>
             </div>
 
-            <div className="pt-8 flex items-center gap-4 text-sm text-slate-500 font-medium">
-              <div className="flex -space-x-3">
+            {/* Social Proof */}
+            <div className="pt-6 flex items-center gap-4">
+              <div className="flex -space-x-2.5">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-xs overflow-hidden">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 13}`} alt="avatar" />
+                  <div key={i} className="w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-sm">
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 13}`} alt="" className="w-full h-full" />
                   </div>
                 ))}
               </div>
-              <p>Trusted by 2,000+ residents</p>
+              <div>
+                <p className="text-sm font-semibold text-slate-700">2,000+ Residents</p>
+                <p className="text-xs text-slate-400">making their community better</p>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Stats Cards */}
-          <div className="grid gap-6 items-center lg:pl-10">
-
-            <Card className="p-6 border border-slate-100 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm transform transition-all hover:scale-[1.02]">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Reports</p>
+          {/* Stats Cards */}
+          <div className="grid gap-4 lg:pl-8">
+            {[
+              { label: 'Active Reports', value: '24', sub: 'Issues requiring attention', icon: '🚨', accent: 'from-red-500/10 to-orange-500/10', iconBg: 'bg-red-50 text-red-600' },
+              { label: 'Avg. Response Time', value: '2', sub: 'Days — faster than last month', icon: '⚡', accent: 'from-amber-500/10 to-yellow-500/10', iconBg: 'bg-amber-50 text-amber-600', unit: 'days' },
+              { label: 'Community Members', value: '2,847', sub: 'Residents driving change', icon: '👥', accent: 'from-teal-500/10 to-emerald-500/10', iconBg: 'bg-teal-50 text-teal-600' },
+            ].map((stat, i) => (
+              <div key={i} className={`group bg-white rounded-2xl border border-slate-200/70 p-6 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5 ${i === 1 ? 'lg:ml-8' : ''}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{stat.label}</p>
+                    <p className="text-4xl font-extrabold text-navy-900 tracking-tight">
+                      {stat.value}
+                      {stat.unit && <span className="text-lg text-slate-400 font-normal ml-1">{stat.unit}</span>}
+                    </p>
+                    <p className="text-slate-400 text-xs mt-1.5">{stat.sub}</p>
                   </div>
-                  <p className="text-5xl font-extrabold text-slate-900 tracking-tight">24</p>
-                  <p className="text-slate-500 text-sm mt-1">Issues requiring attention</p>
-                </div>
-                <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
-                  🚨
+                  <div className={`h-11 w-11 rounded-xl ${stat.iconBg} flex items-center justify-center text-xl group-hover:scale-110 transition-transform`}>
+                    {stat.icon}
+                  </div>
                 </div>
               </div>
-            </Card>
-
-            <Card className="p-6 border border-slate-100 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm transform transition-all hover:scale-[1.02] ml-0 lg:ml-8">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Avg. Response Time</p>
-                  <p className="text-5xl font-extrabold text-slate-900 tracking-tight">2<span className="text-2xl text-slate-500 font-normal ml-1">days</span></p>
-                  <p className="text-slate-500 text-sm mt-1">Faster than last month</p>
-                </div>
-                <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl">
-                  ⚡
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 border border-slate-100 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm transform transition-all hover:scale-[1.02]">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Community Members</p>
-                  <p className="text-5xl font-extrabold text-slate-900 tracking-tight">2,847</p>
-                  <p className="text-slate-500 text-sm mt-1">Residents making a change</p>
-                </div>
-                <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
-                  👥
-                </div>
-              </div>
-            </Card>
-
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-white border-t border-slate-100">
+        <div className="container mx-auto px-4 py-20 max-w-7xl">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-navy-900 mb-3">How CommunityFix Works</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">Three simple steps to make your neighborhood a better place.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: '01', title: 'Report an Issue', desc: 'Snap a photo, describe the problem, and pin the location. It takes less than 30 seconds.', icon: '📸' },
+              { step: '02', title: 'Track Progress', desc: 'Follow your issue through approval, assignment, and resolution — all in real-time.', icon: '📍' },
+              { step: '03', title: 'See the Fix', desc: 'Workers resolve the issue and upload proof. Your community gets cleaner, safer, stronger.', icon: '✅' },
+            ].map((item, i) => (
+              <div key={i} className="group relative bg-slate-50/50 rounded-2xl p-8 border border-slate-100 hover:bg-white hover:shadow-card-hover hover:border-slate-200 transition-all duration-300">
+                <span className="text-5xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-teal-100 transition-colors">{item.step}</span>
+                <div className="text-3xl mb-4">{item.icon}</div>
+                <h3 className="text-lg font-bold text-navy-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-gradient-to-br from-navy-800 to-navy-950">
+        <div className="container mx-auto px-4 py-16 max-w-7xl text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Ready to improve your neighborhood?</h2>
+          <p className="text-navy-200 mb-8 max-w-lg mx-auto">Join thousands of residents who are already making a difference.</p>
+          <Link to="/register" className="inline-flex items-center gap-2 px-8 py-3.5 bg-teal-500 text-white font-semibold rounded-xl hover:bg-teal-600 transition-all shadow-lg hover:shadow-xl">
+            Start Reporting — It's Free
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }

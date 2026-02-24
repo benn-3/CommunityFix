@@ -1,4 +1,27 @@
+# Dependencies
 node_modules/
+*/node_modules/
+
+# Environment files
 .env
-client/node_modules/
-server/node_modules/
+*.env.local
+*.env.production
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Coverage
+coverage/

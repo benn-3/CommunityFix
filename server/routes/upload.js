@@ -2,46 +2,24 @@ const express = require('express')
 const router = express.Router()
 const { upload, uploadToCloudinary } = require('../config/cloudinary')
 const auth = require('../middleware/authMiddleware')
+const asyncHandler = require('../utils/asyncHandler')
+const ApiError = require('../utils/ApiError')
 
 // Upload single image
-router.post('/upload', auth, upload.single('image'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' })
-        }
+router.post('/upload', auth, upload.single('image'), asyncHandler(async (req, res) => {
+    if (!req.file) throw new ApiError(400, 'No file uploaded')
 
-        const result = await uploadToCloudinary(req.file.buffer)
-
-        res.json({
-            url: result.secure_url,
-            publicId: result.public_id
-        })
-    } catch (err) {
-        console.error('Upload error:', err)
-        res.status(500).json({ message: 'Failed to upload image' })
-    }
-})
+    const result = await uploadToCloudinary(req.file.buffer)
+    res.json({ url: result.secure_url, publicId: result.public_id })
+}))
 
 // Upload multiple images
-router.post('/upload-multiple', auth, upload.array('images', 5), async (req, res) => {
-    try {
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ message: 'No files uploaded' })
-        }
+router.post('/upload-multiple', auth, upload.array('images', 5), asyncHandler(async (req, res) => {
+    if (!req.files || req.files.length === 0) throw new ApiError(400, 'No files uploaded')
 
-        const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer))
-        const results = await Promise.all(uploadPromises)
-
-        const urls = results.map(result => ({
-            url: result.secure_url,
-            publicId: result.public_id
-        }))
-
-        res.json({ images: urls })
-    } catch (err) {
-        console.error('Upload error:', err)
-        res.status(500).json({ message: 'Failed to upload images' })
-    }
-})
+    const results = await Promise.all(req.files.map(f => uploadToCloudinary(f.buffer)))
+    const images = results.map(r => ({ url: r.secure_url, publicId: r.public_id }))
+    res.json({ images })
+}))
 
 module.exports = router

@@ -1,29 +1,26 @@
 const Category = require('../models/Category')
+const asyncHandler = require('../utils/asyncHandler')
+const ApiError = require('../utils/ApiError')
 
-exports.listCategories = async (req, res) => {
-    try {
-        const categories = await Category.find()
-        res.json(categories)
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' })
-    }
-}
+exports.listCategories = asyncHandler(async (req, res) => {
+    const categories = await Category.find().lean()
+    res.json(categories)
+})
 
-exports.createCategory = async (req, res) => {
-    try {
-        const { name, description } = req.body
-        const category = await Category.create({ name, description })
-        res.status(201).json(category)
-    } catch (err) {
-        res.status(400).json({ message: 'Failed to create category' })
-    }
-}
+exports.createCategory = asyncHandler(async (req, res) => {
+    const { name, description } = req.body
+    if (!name || !name.trim()) throw new ApiError(400, 'Category name is required')
 
-exports.deleteCategory = async (req, res) => {
-    try {
-        await Category.findByIdAndDelete(req.params.id)
-        res.json({ message: 'Category deleted' })
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' })
-    }
-}
+    const existing = await Category.findOne({ name: name.trim() })
+    if (existing) throw new ApiError(409, 'Category already exists')
+
+    const category = await Category.create({ name: name.trim(), description })
+    res.status(201).json(category)
+})
+
+exports.deleteCategory = asyncHandler(async (req, res) => {
+    const category = await Category.findByIdAndDelete(req.params.id)
+    if (!category) throw new ApiError(404, 'Category not found')
+
+    res.json({ message: 'Category deleted' })
+})
