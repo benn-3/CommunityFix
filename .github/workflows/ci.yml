@@ -37,10 +37,10 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Install client dependencies
-        run: npm ci --prefix client
+        run: npm ci --prefix client --ignore-scripts
 
       - name: Install server dependencies
-        run: npm ci --prefix server
+        run: npm ci --prefix server --ignore-scripts
 
       - name: Run existing automated tests
         shell: bash
@@ -75,19 +75,21 @@ jobs:
         run: test -d client/dist
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.3.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker build \
             --file server/Dockerfile \
             --tag communityfix:latest \
             --tag communityfix:${{ github.sha }} \
-            --tag ${{ secrets.DOCKER_USERNAME }}/communityfix:latest \
-            --tag ${{ secrets.DOCKER_USERNAME }}/communityfix:${{ github.sha }} \
+            --tag "$DOCKER_USERNAME/communityfix:latest" \
+            --tag "$DOCKER_USERNAME/communityfix:${{ github.sha }}" \
             server
 
       - name: Verify Docker image and health endpoint
@@ -154,6 +156,8 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/communityfix:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/communityfix:${{ github.sha }}
+          docker push "$DOCKER_USERNAME/communityfix:latest"
+          docker push "$DOCKER_USERNAME/communityfix:${{ github.sha }}"
