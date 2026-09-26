@@ -4,11 +4,14 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "deploy": "npm run build && wrangler deploy",
     "start": "node server/server.js",
     "postinstall": "npm install --prefix server && npm install --prefix client"
   },
   "devDependencies": {
-    "concurrently": "^8.2.1"
+    "concurrently": "^8.2.1",
+    "wrangler": "^4.141.0"
   },
   "dependencies": {
     "cloudinary": "^2.8.0",
