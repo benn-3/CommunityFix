@@ -33,7 +33,7 @@ export default function AppRouter() {
 
           <Route path="/issues" element={<ProtectedRoute allowedRoles={['citizen', 'admin', 'worker']}><AllIssues /></ProtectedRoute>} />
           <Route path="/issues/:id" element={<ProtectedRoute allowedRoles={['citizen', 'admin', 'worker']}><IssueDetail /></ProtectedRoute>} />
-          <Route path="/report" element={<ProtectedRoute allowedRoles={['citizen', 'worker', 'admin']}><CreateIssue /></ProtectedRoute>} />
+          <Route path="/report" element={<ProtectedRoute allowedRoles={['citizen', 'worker']}><CreateIssue /></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

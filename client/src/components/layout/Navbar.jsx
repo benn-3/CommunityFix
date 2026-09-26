@@ -43,9 +43,11 @@ export default function Navbar() {
               <Link className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-navy-700 hover:bg-slate-50 rounded-lg transition-all duration-200" to="/issues">
                 Issues
               </Link>
-              <Link className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-navy-700 hover:bg-slate-50 rounded-lg transition-all duration-200" to="/report">
-                Report
-              </Link>
+              {user.role !== 'admin' && (
+                <Link className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-navy-700 hover:bg-slate-50 rounded-lg transition-all duration-200" to="/report">
+                  Report
+                </Link>
+              )}
             </>
           )}
 
@@ -121,9 +123,11 @@ export default function Navbar() {
                   <Link onClick={() => setOpen(false)} to="/issues" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-navy-700 transition-all">
                     📋 Browse Issues
                   </Link>
-                  <Link onClick={() => setOpen(false)} to="/report" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-navy-700 transition-all">
-                    ✏️ Report Issue
-                  </Link>
+                  {user.role !== 'admin' && (
+                    <Link onClick={() => setOpen(false)} to="/report" className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-navy-700 transition-all">
+                      ✏️ Report Issue
+                    </Link>
+                  )}
                 </>
               )}
 

@@ -18,8 +18,7 @@ export default function Sidebar({ className = '' }) {
       case 'admin':
         return [
           { to: '/admin', label: 'Admin Panel', icon: '⚙️' },
-          ...commonLinks,
-          { to: '/report', label: 'Report Issue', icon: '✏️' }
+          ...commonLinks
         ]
       case 'worker':
         return [

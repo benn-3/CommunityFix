@@ -1,0 +1,159 @@
+name: CommunityFix CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Test, analyze, and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install client dependencies
+        run: npm ci --prefix client
+
+      - name: Install server dependencies
+        run: npm ci --prefix server
+
+      - name: Run existing automated tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ran_tests=false
+
+          if find server -path 'server/node_modules' -prune -o -type f \( -name '*.test.*' -o -name '*.spec.*' \) -print -quit | grep -q . \
+            && node -e "const p=require('./server/package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"; then
+            npm test --prefix server
+            ran_tests=true
+          fi
+
+          if find client -path 'client/node_modules' -prune -o -type f \( -name '*.test.*' -o -name '*.spec.*' \) -print -quit | grep -q . \
+            && node -e "const p=require('./client/package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"; then
+            npm test --prefix client
+            ran_tests=true
+          fi
+
+          if [ "$ran_tests" = false ]; then
+            echo '::warning::No automated test files or runnable test scripts were found; continuing without tests.'
+          fi
+
+      - name: Run configured linting
+        run: npm run lint --prefix client
+
+      - name: Build React/Vite application
+        run: npm run build --prefix client
+
+      - name: Verify React/Vite production output
+        shell: bash
+        run: test -d client/dist
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --file server/Dockerfile \
+            --tag communityfix:latest \
+            --tag communityfix:${{ github.sha }} \
+            --tag ${{ secrets.DOCKER_USERNAME }}/communityfix:latest \
+            --tag ${{ secrets.DOCKER_USERNAME }}/communityfix:${{ github.sha }} \
+            server
+
+      - name: Verify Docker image and health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          network_name=communityfix-ci-network
+          mongo_name=communityfix-ci-mongo
+          app_name=communityfix-ci-app
+
+          cleanup() {
+            docker rm --force "$app_name" "$mongo_name" >/dev/null 2>&1 || true
+            docker network rm "$network_name" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          docker images communityfix
+          docker image inspect communityfix:latest communityfix:${{ github.sha }} >/dev/null
+
+          docker network create "$network_name"
+          docker run --detach --name "$mongo_name" --network "$network_name" mongo:7
+
+          mongo_ready=false
+          for attempt in {1..30}; do
+            if docker exec "$mongo_name" mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep -q '^1$'; then
+              mongo_ready=true
+              break
+            fi
+            sleep 2
+          done
+          if [ "$mongo_ready" != true ]; then
+            docker logs "$mongo_name"
+            exit 1
+          fi
+
+          ci_jwt_secret="$(openssl rand -hex 32)"
+          docker run --detach \
+            --name "$app_name" \
+            --network "$network_name" \
+            --publish 5000:5000 \
+            --env NODE_ENV=production \
+            --env PORT=5000 \
+            --env MONGO_URI="mongodb://${mongo_name}:27017/communityfix" \
+            --env JWT_SECRET="$ci_jwt_secret" \
+            --env CLIENT_URL=http://localhost:5173 \
+            communityfix:${{ github.sha }}
+
+          app_ready=false
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:5000/health; then
+              app_ready=true
+              break
+            fi
+            if [ "$(docker inspect --format '{{.State.Status}}' "$app_name")" = exited ]; then
+              docker logs "$app_name"
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$app_ready" != true ]; then
+            docker logs "$app_name"
+            exit 1
+          fi
+
+      - name: Push Docker image to Docker Hub
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/communityfix:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/communityfix:${{ github.sha }}
