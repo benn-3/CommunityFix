@@ -19,9 +19,17 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy dependencies from deps stage
 COPY --from=deps --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup package.json ./
 
-# Copy application source
-COPY --chown=appuser:appgroup . .
+# Copy application source explicitly to avoid copying sensitive files
+COPY --chown=appuser:appgroup server.js ./
+COPY --chown=appuser:appgroup config ./config
+COPY --chown=appuser:appgroup controllers ./controllers
+COPY --chown=appuser:appgroup middleware ./middleware
+COPY --chown=appuser:appgroup models ./models
+COPY --chown=appuser:appgroup routes ./routes
+COPY --chown=appuser:appgroup utils ./utils
+COPY --chown=appuser:appgroup validators ./validators
 
 USER appuser
 
